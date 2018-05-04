@@ -12,6 +12,7 @@ flask-admin = "*"
 flask-sqlalchemy = "*"
 requests = "*"
 ipython = "*"
+flask-cors = "*"
 
 
 [dev-packages]
