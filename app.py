@@ -52,6 +52,7 @@ def draw():
 
     now = datetime.now().strftime('%Y%m%d%H%M%S')
     total_count = len(Customer.query.all())
+    postfix = '{}'.format(total_count).zfill(6)
 
     customer = Customer()
     customer.name = content['name']
@@ -60,7 +61,7 @@ def draw():
     customer.draw_list = content['draws']
     # generate ticket number in format yyyymmddhhMM + 4digits for num people
     # registered in that minute
-    customer.ticket_num = "{}{}".format(now, total_count)
+    customer.ticket_num = "{}{}".format(now, postfix)
 
     db.session.add(customer)
     db.session.commit()
