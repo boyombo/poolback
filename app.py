@@ -51,7 +51,7 @@ def draw():
     print(content)
 
     now = datetime.now().strftime('%Y%m%d%H%M%S')
-    total_count = Customer.query.all().count()
+    total_count = len(Customer.query.all())
 
     customer = Customer()
     customer.name = content['name']
