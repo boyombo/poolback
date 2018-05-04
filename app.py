@@ -86,7 +86,13 @@ keys_4 = {
 
 @app.route('/ways')
 def ways():
-    kind = request.args.get('kind', 'exact')
+    kind = request.args.get('kind', '')
+    if kind not in ['exactorder', 'anyorder']:
+        return jsonify(
+            {
+                'success': False,
+                'message': 'Kind is either "exactorder" or "anyorder"'
+            })
     params = request.args.get('games')
     parts = params.split(',')
 
@@ -95,7 +101,7 @@ def ways():
     unique_parts = len(set(parts))
 
     if len(parts) == 3:
-        if kind == 'exact':
+        if kind == 'exactorder':
             return jsonify({'success': True, 'message': 1, 'amount': 10000})
 
         try:
@@ -103,10 +109,11 @@ def ways():
         except KeyError:
             return jsonify({'success': False, 'message': 'Wrong params'})
         else:
-            return jsonify({'success': True, 'message': val[0], 'amount': val[1]})
+            return jsonify(
+                {'success': True, 'message': val[0], 'amount': val[1]})
 
     elif len(parts) == 4:
-        if kind == 'exact':
+        if kind == 'exactorder':
             return jsonify({'success': True, 'message': 1, 'amount': 15000})
 
         try:
