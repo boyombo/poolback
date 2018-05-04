@@ -51,7 +51,8 @@ def draw():
     print(content)
 
     now = datetime.now().strftime('%Y%m%d%H%M%S')
-    total_count = len(Customer.query.all())
+    #total_count = len(Customer.query.all())
+    total_count = db.session.query(db.func.max(Customer.id)).scalar() + 1
     postfix = '{}'.format(total_count).zfill(6)
 
     customer = Customer()
