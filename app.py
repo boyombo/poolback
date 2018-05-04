@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -20,6 +21,7 @@ class Customer(db.Model):
     amount = db.Column(db.String(10))
     draw_list = db.Column(db.String(100))
     draws = db.relationship('Draw', backref="customer", lazy=True)
+    ticket_num = db.Column(db.String(20))
 
     def __repr__(self):
         return self.name
@@ -48,16 +50,22 @@ def draw():
     content = request.json
     print(content)
 
+    now = datetime.now().strftime('%Y%m%d%H%M%S')
+    total_count = Customer.query.all().count()
+
     customer = Customer()
     customer.name = content['name']
     customer.phone = content['phone']
     customer.amount = content['amount']
     customer.draw_list = content['draws']
+    # generate ticket number in format yyyymmddhhMM + 4digits for num people
+    # registered in that minute
+    customer.ticket_num = "{}{}".format(now, total_count)
+
     db.session.add(customer)
     db.session.commit()
-
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'ticket': customer.ticket_num})
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0')
