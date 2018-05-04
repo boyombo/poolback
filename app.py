@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from datetime import datetime
+from collections import defaultdict
+
 
 app = Flask(__name__)
 
@@ -51,7 +53,7 @@ def draw():
     print(content)
 
     now = datetime.now().strftime('%Y%m%d%H%M%S')
-    #total_count = len(Customer.query.all())
+    # total_count = len(Customer.query.all())
     total_count = db.session.query(db.func.max(Customer.id)).scalar() + 1
     postfix = '{}'.format(total_count).zfill(6)
 
@@ -69,5 +71,58 @@ def draw():
     return jsonify({'success': True, 'ticket': customer.ticket_num})
 
 
+keys_3 = {
+    3: [6, 400],
+    2: [3, 1200],
+    1: [1, 10000]
+}
+
+keys_4 = {
+    1: [1, 15000],
+    3: [12, 500],
+    4: [24, 300]
+}
+
+
+@app.route('/ways')
+def ways():
+    kind = request.args.get('kind', 'exact')
+    params = request.args.get('games')
+    parts = params.split(',')
+
+    if not all(i.isdigit() for i in parts):
+        return jsonify({'success': False, 'message': 'Only digits allowed'})
+    unique_parts = len(set(parts))
+
+    if len(parts) == 3:
+        if kind == 'exact':
+            return jsonify({'success': True, 'message': 1, 'amount': 10000})
+
+        try:
+            val = keys_3[unique_parts]
+        except KeyError:
+            return jsonify({'success': False, 'message': 'Wrong params'})
+        else:
+            return jsonify({'success': True, 'message': val[0], 'amount': val[1]})
+
+    elif len(parts) == 4:
+        if kind == 'exact':
+            return jsonify({'success': True, 'message': 1, 'amount': 15000})
+
+        try:
+            val = keys_4[unique_parts]
+        except KeyError:
+            if unique_parts == 2:
+                _test_key = [i for i in parts if i == parts[0]]
+                if len(_test_key) in [1, 3]:
+                    val = [4, 2500]
+                else:
+                    val = [6, 1000]
+        return jsonify({'success': True, 'message': val[0], 'amount': val[1]})
+
+    else:
+        return jsonify({'success': False, 'msg': '3 or 4 numbers allowed'})
+
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
