@@ -25,6 +25,10 @@ class Customer(db.Model):
     draw_list = db.Column(db.String(100))
     draws = db.relationship('Draw', backref="customer", lazy=True)
     ticket_num = db.Column(db.String(20))
+    draw_type = db.Column(db.String(20))
+    draw_time = db.Column(db.String(50))
+    agent = db.Column(db.String(100))
+    company = db.Column(db.String(100))
 
     def __repr__(self):
         return self.name
@@ -50,12 +54,14 @@ def index():
 
 @app.route('/draw', methods=['POST'])
 def draw():
+    #import pdb;pdb.set_trace()
     content = request.json
     print(content)
 
     now = datetime.now().strftime('%Y%m%d%H%M%S')
     # total_count = len(Customer.query.all())
-    total_count = db.session.query(db.func.max(Customer.id)).scalar() + 1
+    current_count = db.session.query(db.func.max(Customer.id)).scalar() or 1
+    total_count = current_count + 1
     postfix = '{}'.format(total_count).zfill(6)
 
     customer = Customer()
@@ -66,6 +72,10 @@ def draw():
     # generate ticket number in format yyyymmddhhMM + 4digits for num people
     # registered in that minute
     customer.ticket_num = "{}{}".format(now, postfix)
+    customer.draw_type = content['draw_type']
+    customer.draw_time = content['draw_date']
+    customer.agent = content['agent']
+    customer.company = content['company']
 
     db.session.add(customer)
     db.session.commit()
