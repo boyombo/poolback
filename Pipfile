@@ -13,6 +13,7 @@ flask-sqlalchemy = "*"
 requests = "*"
 ipython = "*"
 flask-cors = "*"
+flask-wtf = "*"
 
 
 [dev-packages]

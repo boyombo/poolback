@@ -4,10 +4,12 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from datetime import datetime
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
 
 
 app = Flask(__name__)
 CORS(app)
+csrf = CSRFProtect(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.db'
 app.config['SECRET_KEY'] = 'TEST'
@@ -53,6 +55,7 @@ def index():
 
 
 @app.route('/draw', methods=['POST'])
+@csrf.exempt
 def draw():
     #import pdb;pdb.set_trace()
     content = request.json
